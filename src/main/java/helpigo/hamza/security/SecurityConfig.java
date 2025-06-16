@@ -2,7 +2,7 @@ package helpigo.hamza.security;
 
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
-import helpigo.hamza.repository.UserRepository;
+import helpigo.hamza.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +27,6 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -37,17 +36,17 @@ import javax.crypto.spec.SecretKeySpec;
 public class SecurityConfig {
     @Value("${jwt.secret}")
     private String secretKey ;
-    private final UserRepository userRepository;
+    private final CustomerRepository customerRepository;
 
-    public SecurityConfig(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public SecurityConfig(CustomerRepository customerRepository) {
+        this.customerRepository = customerRepository;
     }
 
     // ✅ Use a custom UserDetailsService that fetches users from DB
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
-            helpigo.hamza.entities.User user = userRepository.findByUsername(username)
+            helpigo.hamza.entities.Customer user = customerRepository.findByUsername(username)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found"));
             return User.builder()
                     .username(user.getUsername())
